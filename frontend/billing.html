@@ -1,0 +1,29 @@
+<!-- frontend/billing.html -->
+<div class="card">
+    <h3>Generate Billing</h3>
+    <form id="billingForm">
+      <div id="billingItems">
+        <!-- Billing item rows will be inserted here -->
+      </div>
+      <button type="button" onclick="addBillingRow()">+ Add Product</button><br><br>
+      <button type="submit">Submit Bill</button>
+    </form>
+  </div>
+  
+  <div class="card">
+    <h3>Current Bill</h3>
+    <table style="width:100%">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="currentBillPreview">
+        <!-- JS Fills this -->
+      </tbody>
+    </table>
+    <p><strong>Total Amount: $<span id="totalAmount">0</span></strong></p>
+  </div>
+   <script src="js/billing.js"></script>
