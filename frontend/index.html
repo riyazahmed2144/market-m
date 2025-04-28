@@ -1,48 +1,50 @@
 <!-- frontend/index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Market Inventory Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <h2 class="logo">MarketApp</h2>
-      <nav>
-        <ul>
-          <li><a href="#" onclick="loadPage('dashboard')">Dashboard</a></li>
-          <li><a href="#" onclick="loadPage('products')">Products</a></li>
-          <li><a href="#" onclick="loadPage('add-product')">Add Product</a></li>
-          <li><a href="#" onclick="loadPage('billing')">Billing</a></li>
-          <li><a href="#" onclick="loadPage('analytics')">Analytics</a></li>
-        </ul>
-      </nav>
-    </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Market Inventory Dashboard</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h2 class="logo">MarketApp</h2>
+        <nav>
+          <ul>
+            <li><a href="#" onclick="loadPage('dashboard')">Dashboard</a></li>
+            <li><a href="#" onclick="loadPage('products')">Products</a></li>
+            <li>
+              <a href="add-product.html">Add Product</a>
+            </li>
+            <li><a href="#" onclick="loadPage('billing')">Billing</a></li>
+            <li><a href="analytics.html">Analytics</a></li>
+          </ul>
+        </nav>
+      </aside>
 
-    <!-- Main content -->
-    <main class="main-content" id="main-content">
-      <!-- Content dynamically injected here -->
-    </main>
-  </div>
+      <!-- Main content -->
+      <main class="main-content" id="main-content">
+        <!-- Content dynamically injected here -->
+      </main>
+    </div>
 
-  <script src="js/dashboard.js"></script>
-  <script src="js/products.js"></script>
-  <script src="js/billing.js"></script>
-  <script>
-    function loadPage(page) {
-      fetch(`${page}.html`)
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById("main-content").innerHTML = html;
-          if (window[`${page}Init`]) window[`${page}Init`]();
-        });
-    }
+    <script src="js/dashboard.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/billing.js"></script>
+    <script>
+      function loadPage(page) {
+        fetch(`${page}.html`)
+          .then((res) => res.text())
+          .then((html) => {
+            document.getElementById("main-content").innerHTML = html;
+            if (window[`${page}Init`]) window[`${page}Init`]();
+          });
+      }
 
-    window.onload = () => loadPage('dashboard');
-  </script>
-</body>
+      window.onload = () => loadPage("dashboard");
+    </script>
+  </body>
 </html>

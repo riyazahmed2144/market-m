@@ -1,13 +1,75 @@
-<!-- frontend/analytics.html -->
 <div class="card">
-    <h3>Product Profit (Today)</h3>
-    <canvas id="profitChart"></canvas>
-  </div>
-  
-  <div class="card">
-    <h3>Units Sold (Today)</h3>
-    <canvas id="unitsChart"></canvas>
-  </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+   
+  <h3>Product Profit/Loss (Today)</h3>
+   <canvas id="candlestickChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+
+<script>
+  const ctx = document.getElementById("candlestickChart").getContext("2d");
+
+  const candlestickChart = new Chart(ctx, {
+    type: "candlestick",
+    data: {
+      datasets: [
+        {
+          label: "Profit and Loss",
+          data: [
+            { x: "9 AM", o: 200, h: 400, l: 150, c: 300 }, // Example: Start 200, Peak 400, Low 150, End 300 (Profit for the hour)
+            { x: "10 AM", o: 300, h: 450, l: 250, c: 400 }, // Profit
+            { x: "11 AM", o: 400, h: 500, l: 350, c: 450 }, // Profit
+            { x: "12 PM", o: 450, h: 600, l: 400, c: 550 }, // Profit
+            { x: "1 PM", o: 550, h: 650, l: 500, c: 600 }, // Profit
+            { x: "2 PM", o: 600, h: 700, l: 550, c: 650 }, // Profit
+            { x: "3 PM", o: 650, h: 750, l: 600, c: 700 }, // Profit
+            { x: "4 PM", o: 700, h: 850, l: 650, c: 800 }, // Profit
+            { x: "5 PM", o: 800, h: 950, l: 750, c: 900 }, // Profit
+            { x: "6 PM", o: 900, h: 1000, l: 850, c: 950 }, // Profit
+            { x: "7 PM", o: 950, h: 1050, l: 900, c: 1000 }, // Profit
+            { x: "8 PM", o: 1000, h: 1100, l: 950, c: 1050 }, // Profit
+            { x: "9 PM", o: 1050, h: 1200, l: 1000, c: 1100 }, // Profit
+          ],
+          borderColor: {
+            up: "green", // Color when Close > Open (Profit)
+            down: "red", // Color when Close < Open (Loss)
+            unchanged: "gray", // Color when Close == Open
+          },
+        },
+      ],
+    },
+    options: {
+      responsive: true, // Make chart resize with container
+      plugins: {
+        legend: {
+          display: true, // Show the legend (label: 'Profit and Loss')
+        },
+      },
+      scales: {
+        x: {
+          type: "category", // Treat x-axis labels as categories
+          labels: [
+            "9 AM",
+            "10 AM",
+            "11 AM",
+            "12 PM",
+            "1 PM",
+            "2 PM",
+            "3 PM",
+            "4 PM",
+            "5 PM",
+            "6 PM",
+            "7 PM",
+            "8 PM",
+            "9 PM",
+          ], // Explicit labels for x-axis
+        },
+        y: {
+          // Y-axis configuration (usually added automatically, but can be customized)
+          beginAtZero: false, // Start y-axis near the lowest data point, not necessarily 0
+        },
+      },
+    },
+  });
+</script>
