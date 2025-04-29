@@ -10,8 +10,8 @@ function productsInit() {
             <tr>
               <td>${prod.name}</td>
               <td>${prod.quantity}</td>
-              <td>$${prod.sellingPrice.toFixed(2)}</td>
-              <td>$${prod.retailPrice.toFixed(2)}</td>
+              <td>₹${prod.sellingPrice.toFixed(2)}</td>
+              <td>₹${prod.retailPrice.toFixed(2)}</td>
             </tr>`;
           table.innerHTML += row;
         });

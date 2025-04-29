@@ -1,29 +1,172 @@
-<!-- frontend/billing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Billing</title>
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      /* align-items: center; */
+      gap: 30px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #billingItems {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    button[type="button"],
+    button[type="submit"] {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff7b7b;
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    button[type="button"]:hover,
+    button[type="submit"]:hover {
+      background-color: #ff5252;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    p strong {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 18px;
+      color: #333333;
+    }
+    <style>
+  /* Add this inside your <style> tag */
+
+  .billing-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .product-select, .quantity-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .product-select {
+    flex: 2;
+  }
+
+  .quantity-input {
+    flex: 1;
+  }
+
+  .remove-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .remove-button:hover {
+    background-color: #e60000;
+  }
+</style>
+
+  </style>
+</head>
+
+<body>
+
 <div class="card">
-    <h3>Generate Billing</h3>
-    <form id="billingForm">
-      <div id="billingItems">
-        <!-- Billing item rows will be inserted here -->
-      </div>
-      <button type="button" onclick="addBillingRow()">+ Add Product</button><br><br>
-      <button type="submit">Submit Bill</button>
-    </form>
-  </div>
-  
-  <div class="card">
-    <h3>Current Bill</h3>
-    <table style="width:100%">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Qty</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody id="currentBillPreview">
-        <!-- JS Fills this -->
-      </tbody>
-    </table>
-    <p><strong>Total Amount: $<span id="totalAmount">0</span></strong></p>
-  </div>
-   <script src="js/billing.js"></script>
+  <h3>Generate Billing</h3>
+  <form id="billingForm">
+    <div id="billingItems">
+      <!-- Billing item rows will be inserted here -->
+    </div>
+    <button type="button" onclick="addBillingRow()">+ Add Product</button>
+    <button type="submit">Submit Bill</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Current Bill</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="currentBillPreview">
+      <!-- JS Fills this -->
+    </tbody>
+  </table>
+  <p><strong>Total Amount: ₹<span id="totalAmount">0</span></strong></p>
+</div>
+
+<script src="js/billing.js"></script>
+
+</body>
+</html>

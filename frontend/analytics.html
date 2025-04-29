@@ -1,75 +1,718 @@
-<div class="card">
-   
-  <h3>Product Profit/Loss (Today)</h3>
-   <canvas id="candlestickChart"></canvas>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Profit Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+      }
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 500px;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .card-title {
+        margin: 0;
+        color: #333;
+        font-size: 1.2rem;
+      }
+      .summary-metrics {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .metric {
+        text-align: center;
+        padding: 10px;
+        min-width: 120px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      .metric-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 5px 0;
+      }
+      .metric-label {
+        font-size: 0.9rem;
+        color: #666;
+      }
+      .profit-positive {
+        color: #28a745;
+      }
+      .profit-negative {
+        color: #dc3545;
+      }
+      .tabs {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .tab {
+        padding: 8px 16px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        color: #495057;
+      }
+      .tab.active {
+        color: #2563eb;
+        border-bottom: 2px solid #2563eb;
+      }
+      .chart-container {
+        position: relative;
+        height: 250px;
+      }
+      .history-container {
+        margin-top: 20px;
+        border-top: 1px solid #e9ecef;
+        padding-top: 15px;
+      }
+      .history-title {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        color: #495057;
+      }
+      .history-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f1f1;
+        display: flex;
+        justify-content: space-between;
+      }
+      .history-date {
+        color: #6c757d;
+        font-size: 0.85rem;
+      }
+      .switcher {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+      .switcher button {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      .switcher button:first-child {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+      }
+      .switcher button:last-child {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+      }
+      .switcher button.active {
+        background-color: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+      .refresh-button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        margin-left: 10px;
+      }
+      .refresh-button:hover {
+        background-color: #1d4ed8;
+      }
+      .status-indicator {
+        font-size: 0.85rem;
+        margin-top: 10px;
+        text-align: center;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- First card: Overview metrics -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Product Performance Overview</h3>
+          <div class="switcher" id="timeRangeSwitcher">
+            <!-- <button class="active" data-range="today">Today</button> -->
+            <!-- <button data-range="week">This Week</button>
+            <button data-range="month">This Month</button> -->
+            <button class="refresh-button active" id="refreshData">
+              Refresh
+            </button>
+          </div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+        <div class="summary-metrics">
+          <div class="metric">
+            <div class="metric-label">Revenue</div>
+            <div class="metric-value" id="totalRevenue">₹0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Cost</div>
+            <div class="metric-value" id="totalCost">₹0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Profit</div>
+            <div class="metric-value profit-positive" id="totalProfit">₹0</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Profit Margin</div>
+            <div class="metric-value" id="profitMargin">0%</div>
+          </div>
+        </div>
 
-<script>
-  const ctx = document.getElementById("candlestickChart").getContext("2d");
+        <div class="chart-container">
+          <canvas id="overviewChart"></canvas>
+        </div>
 
-  const candlestickChart = new Chart(ctx, {
-    type: "candlestick",
-    data: {
-      datasets: [
-        {
-          label: "Profit and Loss",
-          data: [
-            { x: "9 AM", o: 200, h: 400, l: 150, c: 300 }, // Example: Start 200, Peak 400, Low 150, End 300 (Profit for the hour)
-            { x: "10 AM", o: 300, h: 450, l: 250, c: 400 }, // Profit
-            { x: "11 AM", o: 400, h: 500, l: 350, c: 450 }, // Profit
-            { x: "12 PM", o: 450, h: 600, l: 400, c: 550 }, // Profit
-            { x: "1 PM", o: 550, h: 650, l: 500, c: 600 }, // Profit
-            { x: "2 PM", o: 600, h: 700, l: 550, c: 650 }, // Profit
-            { x: "3 PM", o: 650, h: 750, l: 600, c: 700 }, // Profit
-            { x: "4 PM", o: 700, h: 850, l: 650, c: 800 }, // Profit
-            { x: "5 PM", o: 800, h: 950, l: 750, c: 900 }, // Profit
-            { x: "6 PM", o: 900, h: 1000, l: 850, c: 950 }, // Profit
-            { x: "7 PM", o: 950, h: 1050, l: 900, c: 1000 }, // Profit
-            { x: "8 PM", o: 1000, h: 1100, l: 950, c: 1050 }, // Profit
-            { x: "9 PM", o: 1050, h: 1200, l: 1000, c: 1100 }, // Profit
+        <div class="status-indicator" id="statusIndicator">
+          Last updated: Never
+        </div>
+      </div>
+
+      <!-- Second card: Detailed analysis -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Profit Analysis</h3>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-view="brute">Brute Force</button>
+          <button class="tab" data-view="better">Better Approach</button>
+          <button class="tab" data-view="optimal">Optimal View</button>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="analysisChart"></canvas>
+        </div>
+
+        <div id="logicExplanation" class="history-container">
+          <h4 class="history-title">Analysis Logic:</h4>
+          <p>
+            Brute Force Approach: Calculating profit by subtracting total costs
+            from revenue for each product individually, then summing them up.
+            This approach processes each product one by one without any
+            optimization.
+          </p>
+        </div>
+
+        <div class="history-container">
+          <h4 class="history-title">Today's Activity:</h4>
+          <div id="historyLog">
+            <div class="history-item">
+              <span>Loading activity...</span>
+              <span class="history-date"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // API endpoint
+      const API_URL = "http://localhost:5000/api/analytics";
+
+      // Static data as fallback
+      const staticData = {
+        today: {
+          revenue: 65,
+          cost: 52,
+          profit: 13,
+          margin: 20.0,
+          products: [
+            { name: "Product A", revenue: 25, cost: 15, profit: 10 },
+            { name: "Product B", revenue: 20, cost: 18, profit: 2 },
+            { name: "Product C", revenue: 20, cost: 19, profit: 1 },
           ],
-          borderColor: {
-            up: "green", // Color when Close > Open (Profit)
-            down: "red", // Color when Close < Open (Loss)
-            unchanged: "gray", // Color when Close == Open
+          history: [
+            {
+              time: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              }),
+              event: "Updated from API",
+            },
+          ],
+        },
+        week: {
+          revenue: 63000,
+          cost: 37800,
+          profit: 25200,
+          margin: 40,
+          products: [
+            { name: "Product A", revenue: 25000, cost: 13750, profit: 11250 },
+            { name: "Product B", revenue: 18000, cost: 12600, profit: 5400 },
+            { name: "Product C", revenue: 20000, cost: 11450, profit: 8550 },
+          ],
+          history: [
+            { time: "Monday", event: "Best selling day with ₹12,000 revenue" },
+            {
+              time: "Wednesday",
+              event: "Product A promotion increased sales by 35%",
+            },
+            { time: "Friday", event: "Profit margin improved to 45%" },
+          ],
+        },
+        month: {
+          revenue: 210000,
+          cost: 126000,
+          profit: 84000,
+          margin: 40,
+          products: [
+            { name: "Product A", revenue: 85000, cost: 46750, profit: 38250 },
+            { name: "Product B", revenue: 62000, cost: 43400, profit: 18600 },
+            { name: "Product C", revenue: 63000, cost: 35850, profit: 27150 },
+          ],
+          history: [
+            { time: "Week 1", event: "Sales target exceeded by 12%" },
+            { time: "Week 2", event: "New product variant launched" },
+            {
+              time: "Week 3",
+              event: "Cost optimization reduced expenses by 8%",
+            },
+          ],
+        },
+      };
+
+      // Logic explanations for different approaches
+      const logicExplanations = {
+        brute:
+          "Brute Force Approach: Calculating profit by subtracting total costs from revenue for each product individually, then summing them up. This approach processes each product one by one without any optimization.",
+        better:
+          "Better Approach: Using batch processing to calculate profits and grouping products by categories to identify patterns. This approach reduces redundant calculations and provides better insights.",
+        optimal:
+          "Optimal Approach: Using a streaming calculation model that updates profits in real-time with each sale. This approach uses memoization and efficient data structures to minimize recalculations.",
+      };
+
+      // Initialize charts
+      let overviewChart, analysisChart;
+      let currentTimeRange = "today";
+      let currentView = "brute";
+      let data = structuredClone(staticData); // We'll update this with API data
+
+      // Fetch data from API
+      async function fetchData() {
+        try {
+          document.getElementById("statusIndicator").textContent =
+            "Fetching data...";
+
+          const response = await fetch(API_URL);
+          if (!response.ok) {
+            throw new Error(`API error: ₹{response.status}`);
+          }
+
+          const apiData = await response.json();
+          console.log("API Data:", apiData);
+
+          // Update today's data with API response
+          const totalCost = apiData.totalEarned - apiData.totalProfit;
+          const profitMargin =
+            apiData.totalEarned > 0
+              ? ((apiData.totalProfit / apiData.totalEarned) * 100).toFixed(1)
+              : 0;
+
+          data.today = {
+            revenue: apiData.totalEarned,
+            cost: totalCost,
+            profit: apiData.totalProfit,
+            margin: parseFloat(profitMargin),
+            products: [
+              {
+                name: "Product A",
+                revenue: Math.round(apiData.totalEarned * 0.4),
+                cost: Math.round(totalCost * 0.3),
+                profit: Math.round(apiData.totalProfit * 0.5),
+              },
+              {
+                name: "Product B",
+                revenue: Math.round(apiData.totalEarned * 0.3),
+                cost: Math.round(totalCost * 0.4),
+                profit: Math.round(apiData.totalProfit * 0.3),
+              },
+              {
+                name: "Product C",
+                revenue: Math.round(apiData.totalEarned * 0.3),
+                cost: Math.round(totalCost * 0.3),
+                profit: Math.round(apiData.totalProfit * 0.2),
+              },
+            ],
+            history: [
+              {
+                time: new Date().toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                event: `${apiData.totalSold} product(s) sold with ${profitMargin}% margin`,
+              },
+            ],
+          };
+
+          // Update UI with new data
+          updateMetrics(currentTimeRange);
+          updateOverviewChart(currentTimeRange);
+          updateAnalysisChart(currentTimeRange, currentView);
+          updateHistory(currentTimeRange);
+
+          const now = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+          document.getElementById(
+            "statusIndicator"
+          ).textContent = `Last updated: ${now}`;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          document.getElementById(
+            "statusIndicator"
+          ).textContent = `Error: ₹{error.message}. Using fallback data.`;
+          // Continue with static data
+        }
+      }
+
+      // Update the overview metrics
+      function updateMetrics(timeRange) {
+        document.getElementById("totalRevenue").textContent =
+          "₹" + numberWithCommas(data[timeRange].revenue);
+        document.getElementById("totalCost").textContent =
+          "₹" + numberWithCommas(data[timeRange].cost);
+        document.getElementById("totalProfit").textContent =
+          "₹" + numberWithCommas(data[timeRange].profit);
+        document.getElementById("profitMargin").textContent =
+          data[timeRange].margin + "%";
+
+        // Update profit color based on value
+        const profitElement = document.getElementById("totalProfit");
+        if (data[timeRange].profit > 0) {
+          profitElement.className = "metric-value profit-positive";
+        } else {
+          profitElement.className = "metric-value profit-negative";
+        }
+      }
+
+      // Update the history log
+      function updateHistory(timeRange) {
+        const historyLog = document.getElementById("historyLog");
+        historyLog.innerHTML = "";
+
+        data[timeRange].history.forEach((item) => {
+          const historyItem = document.createElement("div");
+          historyItem.className = "history-item";
+          historyItem.innerHTML = `
+          <span>${item.event}</span>
+          <span class="history-date">₹{item.time}</span>
+        `;
+          historyLog.appendChild(historyItem);
+        });
+      }
+
+      // Update the logic explanation
+      function updateLogicExplanation(view) {
+        document.getElementById("logicExplanation").innerHTML = `
+        <h4 class="history-title">Analysis Logic:</h4>
+        <p>${logicExplanations[view]}</p>
+      `;
+      }
+
+      // Initialize and update the overview chart
+      function updateOverviewChart(timeRange) {
+        const ctx = document.getElementById("overviewChart").getContext("2d");
+
+        if (overviewChart) {
+          overviewChart.destroy();
+        }
+
+        overviewChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: data[timeRange].products.map((product) => product.name),
+            datasets: [
+              {
+                label: "Revenue",
+                data: data[timeRange].products.map(
+                  (product) => product.revenue
+                ),
+                backgroundColor: "rgba(54, 162, 235, 0.5)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+              },
+              {
+                label: "Cost",
+                data: data[timeRange].products.map((product) => product.cost),
+                backgroundColor: "rgba(255, 99, 132, 0.5)",
+                borderColor: "rgba(255, 99, 132, 1)",
+                borderWidth: 1,
+              },
+              {
+                label: "Profit",
+                data: data[timeRange].products.map((product) => product.profit),
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+              },
+            ],
           },
-        },
-      ],
-    },
-    options: {
-      responsive: true, // Make chart resize with container
-      plugins: {
-        legend: {
-          display: true, // Show the legend (label: 'Profit and Loss')
-        },
-      },
-      scales: {
-        x: {
-          type: "category", // Treat x-axis labels as categories
-          labels: [
-            "9 AM",
-            "10 AM",
-            "11 AM",
-            "12 PM",
-            "1 PM",
-            "2 PM",
-            "3 PM",
-            "4 PM",
-            "5 PM",
-            "6 PM",
-            "7 PM",
-            "8 PM",
-            "9 PM",
-          ], // Explicit labels for x-axis
-        },
-        y: {
-          // Y-axis configuration (usually added automatically, but can be customized)
-          beginAtZero: false, // Start y-axis near the lowest data point, not necessarily 0
-        },
-      },
-    },
-  });
-</script>
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return "₹" + value;
+                  },
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return context.dataset.label + ": ₹" + context.raw;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Initialize and update the analysis chart
+      function updateAnalysisChart(timeRange, view) {
+        const ctx = document.getElementById("analysisChart").getContext("2d");
+
+        if (analysisChart) {
+          analysisChart.destroy();
+        }
+
+        // Different chart types based on the selected view
+        let chartType, chartData, chartOptions;
+
+        if (view === "brute") {
+          // Simple bar chart for brute force
+          chartType = "bar";
+          chartData = {
+            labels: data[timeRange].products.map((product) => product.name),
+            datasets: [
+              {
+                label: "Profit",
+                data: data[timeRange].products.map((product) => product.profit),
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+              },
+            ],
+          };
+          chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    return "₹" + value;
+                  },
+                },
+              },
+            },
+          };
+        } else if (view === "better") {
+          // Stacked bar chart for better approach
+          chartType = "bar";
+          chartData = {
+            labels: data[timeRange].products.map((product) => product.name),
+            datasets: [
+              {
+                label: "Cost",
+                data: data[timeRange].products.map((product) => product.cost),
+                backgroundColor: "rgba(255, 99, 132, 0.5)",
+                borderColor: "rgba(255, 99, 132, 1)",
+                borderWidth: 1,
+                stack: "Stack 0",
+              },
+              {
+                label: "Profit",
+                data: data[timeRange].products.map((product) => product.profit),
+                backgroundColor: "rgba(75, 192, 192, 0.5)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+                stack: "Stack 0",
+              },
+            ],
+          };
+          chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                stacked: true,
+              },
+              y: {
+                stacked: true,
+                ticks: {
+                  callback: function (value) {
+                    return "₹" + value;
+                  },
+                },
+              },
+            },
+          };
+        } else {
+          // Doughnut chart for optimal view
+          chartType = "doughnut";
+          chartData = {
+            labels: data[timeRange].products.map((product) => product.name),
+            datasets: [
+              {
+                data: data[timeRange].products.map((product) => product.profit),
+                backgroundColor: [
+                  "rgba(75, 192, 192, 0.7)",
+                  "rgba(54, 162, 235, 0.7)",
+                  "rgba(153, 102, 255, 0.7)",
+                ],
+                borderColor: [
+                  "rgba(75, 192, 192, 1)",
+                  "rgba(54, 162, 235, 1)",
+                  "rgba(153, 102, 255, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          };
+          chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const label = context.label || "";
+                    const value = context.raw;
+                    const total = context.chart.data.datasets[0].data.reduce(
+                      (a, b) => a + b,
+                      0
+                    );
+                    const percentage = Math.round((value / total) * 100);
+                    return label + ": ₹" + value + " (" + percentage + "%)";
+                  },
+                },
+              },
+            },
+          };
+        }
+
+        analysisChart = new Chart(ctx, {
+          type: chartType,
+          data: chartData,
+          options: chartOptions,
+        });
+      }
+
+      // Helper function to format numbers with commas
+      function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      // Initialize the dashboard
+      function initDashboard() {
+        // First load static data
+        updateMetrics(currentTimeRange);
+        updateOverviewChart(currentTimeRange);
+        updateAnalysisChart(currentTimeRange, currentView);
+        updateHistory(currentTimeRange);
+        updateLogicExplanation(currentView);
+
+        // Then fetch API data
+        fetchData();
+
+        // Set up event listeners
+        document
+          .getElementById("refreshData")
+          .addEventListener("click", fetchData);
+
+        document
+          .querySelectorAll("#timeRangeSwitcher button")
+          .forEach((button) => {
+            if (button.id === "refreshData") return; // Skip the refresh button
+
+            button.addEventListener("click", function () {
+              // Update active button
+              document
+                .querySelectorAll("#timeRangeSwitcher button")
+                .forEach((btn) => {
+                  if (btn.id !== "refreshData") btn.classList.remove("active");
+                });
+              this.classList.add("active");
+
+              // Update current time range
+              currentTimeRange = this.dataset.range;
+
+              // Update dashboard
+              updateMetrics(currentTimeRange);
+              updateOverviewChart(currentTimeRange);
+              updateAnalysisChart(currentTimeRange, currentView);
+              updateHistory(currentTimeRange);
+            });
+          });
+
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", function () {
+            // Update active tab
+            document.querySelectorAll(".tab").forEach((t) => {
+              t.classList.remove("active");
+            });
+            this.classList.add("active");
+
+            // Update current view
+            currentView = this.dataset.view;
+
+            // Update analysis chart and logic explanation
+            updateAnalysisChart(currentTimeRange, currentView);
+            updateLogicExplanation(currentView);
+          });
+        });
+      }
+
+      // Initialize the dashboard when the page loads
+      window.addEventListener("load", function () {
+        // Add moment.js for date formatting
+        const script = document.createElement("script");
+        script.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js";
+        script.onload = initDashboard;
+        document.head.appendChild(script);
+      });
+    </script>
+  </body>
+</html>

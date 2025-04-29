@@ -17,7 +17,7 @@ function dashboardInit() {
           const row = `
             <tr>
               <td>${bill.billNumber}</td>
-              <td>$${bill.totalAmount.toFixed(2)}</td>
+              <td>₹${bill.totalAmount.toFixed(2)}</td>
               <td>${new Date(bill.createdAt).toLocaleString()}</td>
             </tr>`;
           table.innerHTML += row;
